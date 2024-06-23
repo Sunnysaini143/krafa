@@ -49,6 +49,7 @@ const[fullscreen, setFullscreen]=useState(false);
     // console.log(productarray);
 const handlefullscreen=()=>{
     setFullscreen(true);
+    console.log("fullscren")
 }
   return (
     <>
