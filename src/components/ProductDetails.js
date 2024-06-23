@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import {useLocation} from 'react-router-dom';
  import { getProducts } from '../productredux/productslices/apihandling';
  import { useDispatch, useSelector } from 'react-redux';
-import Card from 'react-bootstrap/Card';
-import { Typography, Grid, Paper, Stack, Fade, Modal, Backdrop } from '@mui/material';
+// import Card from 'react-bootstrap/Card';
+import { Typography, Grid, Paper, Fade, Modal, Backdrop } from '@mui/material';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 export default function ProductDetails() {
     const [productarray, setProductarray]=useState([]);
@@ -15,10 +15,11 @@ const[fullscreen, setFullscreen]=useState(false);
     const {data:Products, status}=useSelector(state=>state.Products);
     useEffect(()=>
     {
+     console.log(status);
         dispatch(getProducts());
         // console.log(location.state.id,"location id");
         // console.log(Products,"Products");
-        // const card=Products?.filter((item)=>{
+        // Products?.filter((item)=>{
         //     if(item.id===location.state.id)
         //     {return setProductarray(item);}
             
@@ -27,7 +28,8 @@ const[fullscreen, setFullscreen]=useState(false);
     useEffect(()=>{
         console.log(location.state.id,"location id");
         console.log(Products,"Products");
-        const card=Products?.filter((item)=>{
+        // const card=
+          Products?.filter((item)=>{
             if(item.id===location.state.id)
             {return setProductarray(item);}
             
@@ -68,7 +70,7 @@ const handlefullscreen=()=>{
             <div className='fullscreenicondiv' onClick={handlefullscreen}><FullscreenIcon className='fullscreenicon'/></div>   
         <div className='paper1div' onMouseMove={handleMouseMove} onMouseOut={handleMouseLeave}> 
         
-             <img src={productarray.image} ></img> </div> 
+             <img src={productarray.image} alt='alt-text'></img> </div> 
            
             </Paper>
            

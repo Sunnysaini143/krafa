@@ -185,7 +185,7 @@ const cards2=products.map(product=>{
     </div>
     <Grid container className='products'>
       <Grid item xs={12} >
-        <Typography variant='h4'>Recommended Products</Typography>
+        <Typography variant='h4'>Best Products</Typography>
         
         {/* <Stack direction={"row"} spacing={2}>{cards}</Stack> */}
         <div className='recommended '>
