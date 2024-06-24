@@ -26,7 +26,7 @@ export default function Login({Ismodalopen, setIsmodalopen,setProfileSetup ,setE
   // const[number, setNumber]=useState("");
   // const[email,setEmail]=useState({email:""});
   const [signup,setSignUp]=useState(false);
-  const [signupwithemail, setSignupwithemail]=useState(false);
+  const [signupwithemail, setSignupwithemail]=useState(true);
   const [statepassword, setPassword]=useState({password:"", confirmpassword:""})
   const [retriveddata, setRetriveddata]=useState({name:"", email:"", phoneno:"", address:"", imageurl:""});
   // const [verificationId, setVerificationId] = useState('');
