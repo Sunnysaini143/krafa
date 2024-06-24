@@ -38,7 +38,7 @@ export default function Navbar() {
   const[searchitem, setSearchitem]=useState("");
   const [popup, setPopup]=useState(false)
 
-
+ 
   const nav=useNavigate();
   let location = useLocation();
   const dispatch=useDispatch();
@@ -142,11 +142,11 @@ setSearchitem(e.target.value)
   // toast.success("Logout Successfully")
  try{
   alert("Logout")
-
   localStorage.removeItem('items')
   dispatch(notauthenticated());
   localStorage.removeItem('signedin')
   dispatch(notsignedin());
+  localStorage.removeItem('body');
 nav("/");
 }
 catch (error) {

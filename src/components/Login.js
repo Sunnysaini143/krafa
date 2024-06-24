@@ -9,20 +9,26 @@ import Modal from '@mui/material/Modal';
 import ProfileSetup from './ProfileSetup';
 import { getAuth, GoogleAuthProvider,signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPhoneNumber,RecaptchaVerifier } from "firebase/auth";
 import { app } from './Firebase';
-import { getDatabase, ref, set } from 'firebase/database';
+import { getDatabase, onValue, ref, set } from 'firebase/database';
 import {useDispatch, useSelector} from 'react-redux'
 import { notsignedin, yessignedin } from '../productredux/productslices/signedinslice';
 import {toast } from 'react-toastify';
-
+import { child, get } from "firebase/database";
+import { addcredential } from '../productredux/productslices/credentialSlice';
+import { yesauthenticated } from '../productredux/productslices/authenticateSlice';
+import {uploadBytes, getDownloadURL, getStorage } from 'firebase/storage';
+import { ref as ref1} from 'firebase/storage';
 export const phonenumber=createContext();
 export const db=getDatabase(app);
+// const dbRef = getDatabase(app);
+
 export default function Login({Ismodalopen, setIsmodalopen,setProfileSetup ,setEmail ,email, number, setNumber},props) {
   // const[number, setNumber]=useState("");
   // const[email,setEmail]=useState({email:""});
   const [signup,setSignUp]=useState(false);
   const [signupwithemail, setSignupwithemail]=useState(false);
   const [statepassword, setPassword]=useState({password:"", confirmpassword:""})
-  
+  const [retriveddata, setRetriveddata]=useState({name:"", email:"", phoneno:"", address:"", imageurl:""});
   // const [verificationId, setVerificationId] = useState('');
   // const [verificationCode, setVerificationCode] = useState('');
   // const [verificationError, setVerificationError] = useState(null);
@@ -30,12 +36,13 @@ export default function Login({Ismodalopen, setIsmodalopen,setProfileSetup ,setE
   const dispatch=useDispatch();
   const selector=useSelector(state=>state.signedin);
   auth.languageCode = 'it';
-
   const provider = new GoogleAuthProvider();
-  
-  
+  const storage=getStorage(app);
 //  const refrence=ref(db,"user/"+ email.email);
-  
+const encodeEmail = (email) => {
+  return email.replace(/\./g, ',').replace(/@/g, '_');
+};
+
   const handleChange=(value)=>{
    setNumber(value);
   }
@@ -46,7 +53,7 @@ export default function Login({Ismodalopen, setIsmodalopen,setProfileSetup ,setE
  const handlesignup=()=>{
   setSignUp(!signup);
  }
- function handleNext(){
+async function handleNext (){
   if(signupwithemail?email==null:number.length<10)
     {
       toast.error(signupwithemail?"please enter valid Email":"please enter the valid Phone Number")
@@ -62,20 +69,21 @@ export default function Login({Ismodalopen, setIsmodalopen,setProfileSetup ,setE
       }
     else{
       
-        createUserWithEmailAndPassword(auth,email, statepassword.password)
-        .then((response) => {
+     try{ 
+      await createUserWithEmailAndPassword(auth,email, statepassword.password);
+        
           toast.success("Account created successfully");
           // alert("User created successfully: " + response.user.email);
           setIsmodalopen(false);
           setProfileSetup(true);
           // dispatch(yessignedin())
           localStorage.setItem('signedin', true)
-          
-        })
-        .catch((error) => {
+          }
+        
+        catch(error) {
 toast.error("Error during creating account:" + error.message)
           // alert("Error creating user: " + error.message);
-        });
+        }
        
     }
     }
@@ -88,22 +96,60 @@ toast.error("Error during creating account:" + error.message)
   // }).then(alert("sucess"))
     }
  }
- function handleContinue(){
+
+async function handleContinue(){
+  
+
+
   if(signupwithemail?email==null:number.length<10){
     (toast.error(signupwithemail?"Enter valid email":"Enter valid PhoneNumber"))
   }
   else if(signupwithemail==true){
-  signInWithEmailAndPassword(auth, email, statepassword.password)
-  .then(toast.success("successfully loged in"),
-  setIsmodalopen(false)
-  
-)
-  .catch((error) => {
-    toast.error(error)
+    if(statepassword.password.length<8){
+       toast.error("Enter valid Password")
+    }
+    else{
+      const encodedEmaildata = encodeEmail(email);
+      console.log(encodedEmaildata);
+      const refrence=ref(db,`userdetails/${encodedEmaildata}`);
+     try{ 
+      let data, imageurl1={url:""};
+ const usercredential= await signInWithEmailAndPassword(auth, email, statepassword.password);
+  toast.success("successfully loged in");
+  setIsmodalopen(false);
+   onValue(refrence, async (snapshot) => {
+     data = snapshot.val();
+    console.log(data.name,"data");
+   const imageref=ref1(storage,`images/${encodedEmaildata}`);
+ const url= await getDownloadURL(imageref);
+      imageurl1.url=url;
+      console.log(url,"url");
+console.log(imageurl1,"imageurl1");
+    
+    const collectivedata={
+      name:data.name,
+      phoneNo:data.number,
+      email:data.email,
+      address:data.address,
+      imageurl:imageurl1.url
+    }
+    console.log(collectivedata,"collectivedata");
+    dispatch(addcredential(collectivedata));
+    dispatch(yesauthenticated());
+    localStorage.setItem('items', true)
+    localStorage.setItem('body', JSON.stringify(collectivedata));
   })
+  }
+  catch(error){
+    toast.error(error.message)
+  }
   
 }
-else{
+}
+else if(signupwithemail==false) {
+  toast.info("Please sign up with email")
+  console.log(number);
+  
   // window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
   //   'size': 'invisible',
   //   'callback': (response) => {
@@ -111,29 +157,29 @@ else{
   //   }}
   // )
   // setCaptcha();
-  const phoneNumber="7302756558";
-  // console.log(phoneNumber);
-  const appVerifier=new RecaptchaVerifier(auth, 'recaptcha-container',{
-    //  'size': 'invisible',
-    'callback': (response) => {
-  signInWithPhoneNumber(auth,phonenumber, appVerifier )
-  .then((confirmationResult) => {
-    const code = window.prompt("Enter OTP");
-    confirmationResult.confirm(code).then((result) => {
-      // User signed in successfully.
-      const user = result.user;
-      // ...
-      // console.log("successfully logged in ")
-    }).catch((error) => {
-      // User couldn't sign in (bad verification code?)
-      // ...
-    });
-  })
-  .catch((error) => {
-    // Error; SMS not sent
-    console.error(error);
-  });}
-})
+//   const phoneNumber="7302756558";
+//   // console.log(phoneNumber);
+//   const appVerifier=new RecaptchaVerifier(auth, 'recaptcha-container',{
+//     //  'size': 'invisible',
+//     'callback': (response) => {
+//   signInWithPhoneNumber(auth,phonenumber, appVerifier )
+//   .then((confirmationResult) => {
+//     const code = window.prompt("Enter OTP");
+//     confirmationResult.confirm(code).then((result) => {
+//       // User signed in successfully.
+//       const user = result.user;
+//       // ...
+//       // console.log("successfully logged in ")
+//     }).catch((error) => {
+//       // User couldn't sign in (bad verification code?)
+//       // ...
+//     });
+//   })
+//   .catch((error) => {
+//     // Error; SMS not sent
+//     console.error(error);
+//   });}
+// })
   // const appVerifier = new RecaptchaVerifier('recaptcha-container', {
   //   'size': 'invisible',
   //   'callback': (response) => {

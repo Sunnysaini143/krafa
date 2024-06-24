@@ -29,7 +29,13 @@ const dispatch = useDispatch();
 const authentication=useSelector(state=>state.authentication);
 const db=getDatabase(app);
 let result="";
-const refrence=ref(db,'userdetails/'+ userdata.fullname);
+let encodedEmaildata="";
+const encodeEmail = (email) => {
+  return email.replace(/\./g, ',').replace(/@/g, '_');
+};
+
+// const refrence=ref(db,'userdetails/'+`${number}`);
+
 // const refemail=ref(db,'user/sunnysaini')
 const storage=getStorage(app);
 // useEffect(()=>{
@@ -77,6 +83,7 @@ const handleupload=()=>
     // }
    
   else{
+   
     const body ={
       name:userdata.fullname,
       email:email,
@@ -87,6 +94,11 @@ const handleupload=()=>
   localStorage.setItem('body', JSON.stringify(body));
   dispatch(addcredential(body))
     // console.log("email full");
+     encodedEmaildata = encodeEmail(email)
+      console.log(encodedEmaildata)
+// const refrence=ref(db,'userdetails/'+`${number}`);
+
+      const refrence=ref(db,`userdetails/${encodedEmaildata}`)
     set(refrence, {
            name:userdata.fullname,
       email:email,
@@ -112,11 +124,13 @@ const handleupload=()=>
     }
     // const phoneNumber=useContext(phonenumber);
     const handleprofilephoto=(e)=>{
+      encodedEmaildata = encodeEmail(email)
+      console.log(encodedEmaildata);
 const selectedfile=e.target.files[0];
 // setFile(e.target.files[0]);
 // const imageref=ref(db,`userdetails/${userdata.name}`);
 
-const imageref=ref1(storage,`images/${selectedfile.name}`);
+const imageref=ref1(storage,`images/${encodedEmaildata}`);
 uploadBytes(imageref,selectedfile).then(()=>{
   // alert("uploaded")
 getDownloadURL(imageref).then((url)=>{
