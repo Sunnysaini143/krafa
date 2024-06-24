@@ -1,5 +1,5 @@
 import { Grid, Paper, Typography } from '@mui/material'
-import React from 'react'
+import React, { useEffect } from 'react'
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { useNavigate } from 'react-router-dom';
 
@@ -8,6 +8,9 @@ export default function Sell() {
     const handlecategoryclick=()=>{
 nav("/sellform")
     }
+    // useEffect(()=>{
+
+    // },[])
   return (
     <div>
 <Grid container justifyContent={'center'} alignItems={'center'}>   

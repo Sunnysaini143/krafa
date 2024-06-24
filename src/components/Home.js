@@ -55,12 +55,16 @@ const handlecategory=(value,category,title)=>{
   dispatch(open());
   // setCategory(`${value}`);
 }
+const handleProductdetails=(id)=>{
+  nav("/ProductDetails",{state:{id:id}})
+  // console.log(id,"product id");
+  }
   const cards=products.map(product=>{
   if(product.id==1||product.id==2||product.id==3||product.id==4){
   return(
     <>
-      <div className='classcard' style={{marginBottom:"10px"}}>
-<Card key={product.id} className='classcarditem'>
+      <div className='classcard' style={{marginBottom:"10px"}} >
+<Card key={product.id} className='classcarditem' onClick={()=>handleProductdetails(product.id)}>
 <div className='cardtextclass'>
     <Card.Img className='cardimg' variant="top" src={product.image} />
     </div>  
@@ -82,7 +86,7 @@ const cards2=products.map(product=>{
     <>
       <div className='classcard' style={{marginBottom:"10px"}}>
 {/* <Card key={product.id} className='h-100'> */}
-<Card key={product.id} className='classcarditem'>
+<Card key={product.id} className='classcarditem' onClick={()=>handleProductdetails(product.id)}>
 <div className='cardtextclass'>
     <Card.Img className='cardimg' variant="top" src={product.image} />
     </div>  

@@ -46,6 +46,7 @@ const Isopen=useSelector(state=>state.counter);
 const authentication = useSelector(state=>state.authentication);
 const selector=useSelector(state=>state.signedin);
 const credential=useSelector(state=>state.credential);
+const items = localStorage.getItem('items');
 // const newcredential=JSON.stringify(credential)
 // console.log(credential,"newcredential")
 const { name, address, imageurl, phoneNo } = credential.data || {};
@@ -75,7 +76,7 @@ const { name, address, imageurl, phoneNo } = credential.data || {};
     
   },[])
   useEffect(()=>{
-    const items = localStorage.getItem('items');
+    
     const bodydata = JSON.parse(localStorage.getItem('body'));
     if(bodydata){
       dispatch(addcredential(bodydata))
@@ -91,6 +92,10 @@ const { name, address, imageurl, phoneNo } = credential.data || {};
   //   })
 // console.log(bodydata,"bodydata");
 // console.log(bodydata.name,"bodydata.name");
+
+
+
+
 
 
 // console.log(items,"items");
@@ -142,7 +147,7 @@ setSearchitem(e.target.value)
   dispatch(notauthenticated());
   localStorage.removeItem('signedin')
   dispatch(notsignedin());
-
+nav("/");
 }
 catch (error) {
   console.error('Error during logout:', error);
@@ -160,14 +165,20 @@ catch (error) {
     setCategory(`Product`);
   }
   const handlesell=()=>{
-    if(authentication=="true")
-{
-  nav("/Sell")
-dispatch(close());
-}
-else{
-  selector?setProfileSetup(true):setIsmodalopen(true);
-}
+    
+    if (items=="true") {
+      nav("/Sell");
+      dispatch(close())
+      console.log(items,"itemsitemsitemsitems");
+      // console.log(items,"items");
+    //  dispatch(setauthentication(items)) ;
+    } 
+  //  if (authentication==true)
+  //   {
+  //     // nav("/Sell");
+  //     // dispatch(close())
+  //   }
+    else { selector?setProfileSetup(true):setIsmodalopen(true);}
   }
   return (
     <div className='firstdiv'>
